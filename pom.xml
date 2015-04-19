@@ -5,7 +5,63 @@
 	<artifactId>autolib_catalog</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
-		<defaultGoal>compile</defaultGoal>
+		<defaultGoal>package</defaultGoal>
+		<plugins>
+		<plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+               <descriptorRefs>
+                  <descriptorRef>jar-with-dependencies</descriptorRef>
+               </descriptorRefs>
+               <archive>
+                  <manifest>
+                     <mainClass>autolib_catalog.Catalog</mainClass>
+                  </manifest>
+               </archive>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>make-my-jar-with-dependencies</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+                        	<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>autolib_catalog.Catalog</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
@@ -17,10 +73,9 @@
 			<artifactId>google-api-services-books</artifactId>
 		</dependency>
 		<dependency>
-       		<groupId>com.google.http-client</groupId>
-       		<artifactId>google-http-client-jackson2</artifactId>
-       		<version>1.20.0</version>
-   		</dependency>
+			<groupId>com.google.http-client</groupId>
+			<artifactId>google-http-client-jackson2</artifactId>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -35,10 +90,20 @@
 				<version>v1-rev70-1.20.0</version>
 			</dependency>
 			<dependency>
-        		<groupId>com.google.http-client</groupId>
-        		<artifactId>google-http-client-jackson2</artifactId>
-        		<version>1.20.0</version>
-    		</dependency>
+				<groupId>com.google.http-client</groupId>
+				<artifactId>google-http-client-jackson2</artifactId>
+				<version>1.20.0</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-utils</artifactId>
+				<version>1.1</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>
