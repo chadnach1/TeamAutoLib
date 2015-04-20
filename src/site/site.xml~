@@ -1,0 +1,16 @@
+<project name="Automatic Library">
+  <bannerRight>
+    <src>http://i.imgur.com/LGdCix2.png</src>
+    <href>http://www.ese.upenn.edu</href>
+    <width>480</width>
+    <height>200</height>
+   </bannerRight>
+<poweredBy>
+    <logo name="Maven" href="http://maven.apache.org/"
+          img="http://maven.apache.org/images/logos/maven-feather.png"/>
+  </poweredBy>
+<body>
+  <menu ref="modules" inheritAsRef="true"/>
+  <menu ref="reports" inheritAsRef="true"/>
+</body>
+</project>

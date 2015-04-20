@@ -19,6 +19,9 @@
 	    <email>grmartin@seas.upenn.edu</email>
 	    </developer>
 	  </developers>
+	<repository>
+	  <connection>scm:git:https://github.com/chadnach1/TeamAutoLib.git</connection>
+</repository>
 	<build>
 		<defaultGoal>package</defaultGoal>
 		<plugins>
