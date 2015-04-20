@@ -11,9 +11,13 @@ import com.google.api.services.books.BooksRequestInitializer;
 import com.google.api.services.books.model.Volume;
 import com.google.api.services.books.model.Volume.VolumeInfo.IndustryIdentifiers;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
@@ -22,6 +26,7 @@ public class Catalog {
 
 	public static void main(String[] args) throws InterruptedException {
 		Scanner in = null;
+		Writer out = null;
 		ArrayList<LibraryBook> library = new ArrayList<LibraryBook>();
 		ArrayList<Integer> openShelves = new ArrayList<Integer>();
 		for(int i = 1; i < 21; i++) {
@@ -29,14 +34,9 @@ public class Catalog {
 		}
 		try {
 			in = new Scanner(System.in);
+			out = new PrintWriter(new FileWriter("/dev/rfcomm0"));
 			HttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-			/*GoogleCredential credential = new GoogleCredential.Builder().setTransport(transport)
-			        .setJsonFactory(jsonFactory)
-			        .setServiceAccountId("661373134575-hervr3tn0iccfe2k3knotrl1ae0gne0d@developer.gserviceaccount.com")
-			        .setServiceAccountScopes(BooksScopes.all())
-			        .setServiceAccountPrivateKeyFromP12File(new File("key.p12"))
-			        .build();*/
 			final BooksRequestInitializer KEY_INITIALIZER =
 				      new BooksRequestInitializer("AIzaSyD8xdhfkcqi3g9U04kmifPz9RBOLNsNBBk");
 			Books builder = new Books.Builder(transport, jsonFactory, null)
@@ -64,7 +64,7 @@ public class Catalog {
 								System.out.println("Library is empty.\n");
 								continue;
 							} else {
-								library.sort(null);
+								Collections.sort(library);
 								int i = 1;
 								for(LibraryBook book : library) {
 									if(book.isAvailable()) {
@@ -78,7 +78,7 @@ public class Catalog {
 								System.out.println("Library is empty.");
 								continue;
 							} else {
-								library.sort(null);
+								Collections.sort(library);
 								int i = 1;
 								for(LibraryBook book : library) {
 									printBookInfo(i, book);
@@ -110,6 +110,8 @@ public class Catalog {
 										((isbn != null)? " with ISBN " + isbn : ""));
 								openShelves.remove(openShelves.indexOf(shelf));
 								library.add(new LibraryBook(v,shelf));
+								out.write(Integer.toString(shelf)+"\n");
+								out.flush();
 							} else {
 								System.out.println("Lookup failed.");
 							}
