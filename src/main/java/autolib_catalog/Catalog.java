@@ -27,6 +27,7 @@ public class Catalog {
 	public static void main(String[] args) throws InterruptedException {
 		Scanner in = null;
 		Writer out = null;
+		boolean shouldQuit = false;
 		ArrayList<LibraryBook> library = new ArrayList<LibraryBook>();
 		ArrayList<Integer> openShelves = new ArrayList<Integer>();
 		for(int i = 1; i < 21; i++) {
@@ -43,7 +44,7 @@ public class Catalog {
 				.setApplicationName("Automatic Library")
 				.setGoogleClientRequestInitializer(KEY_INITIALIZER)
 				.build();
-			while(true) {
+			while(!shouldQuit) {
 				System.out.println("What would you like to do?");
 				System.out.println("1. List available volumes.");
 				System.out.println("2. List all volumes.");
@@ -51,6 +52,7 @@ public class Catalog {
 				System.out.println("4. Search volumes.");
 				System.out.println("5. Check out a book.");
 				System.out.println("6. Return a book.");
+				System.out.println("7. Exit.");
 				System.out.print("\nEnter your selection: ");
 				String response = in.nextLine();
 				if(response.length() != 1 || Character.isLetter(response.charAt(0))) {
@@ -115,6 +117,10 @@ public class Catalog {
 							} else {
 								System.out.println("Lookup failed.");
 							}
+							break;
+						case 7:
+							shouldQuit = true;
+							System.out.println("Exiting.");
 							break;
 						default:
 							System.out.println("Unimplemented.");
