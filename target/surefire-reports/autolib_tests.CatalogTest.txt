@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: autolib_tests.CatalogTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.096 sec <<< FAILURE!
-testBackoffRequest(autolib_tests.CatalogTest)  Time elapsed: 0.008 sec  <<< FAILURE!
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.112 sec <<< FAILURE!
+testBackoffRequest(autolib_tests.CatalogTest)  Time elapsed: 0.01 sec  <<< FAILURE!
 java.lang.AssertionError: Not yet implemented
 	at org.junit.Assert.fail(Assert.java:88)
 	at autolib_tests.CatalogTest.testBackoffRequest(CatalogTest.java:21)
@@ -38,7 +38,7 @@ java.lang.AssertionError: Not yet implemented
 	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
 
-testGetMin(autolib_tests.CatalogTest)  Time elapsed: 0.004 sec  <<< FAILURE!
+testGetMin(autolib_tests.CatalogTest)  Time elapsed: 0.001 sec  <<< FAILURE!
 java.lang.AssertionError: Not yet implemented
 	at org.junit.Assert.fail(Assert.java:88)
 	at autolib_tests.CatalogTest.testGetMin(CatalogTest.java:26)
