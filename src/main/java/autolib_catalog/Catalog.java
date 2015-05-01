@@ -11,6 +11,7 @@ import com.google.api.services.books.BooksRequestInitializer;
 import com.google.api.services.books.model.Volume;
 import com.google.api.services.books.model.Volume.VolumeInfo.IndustryIdentifiers;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,6 +27,7 @@ public class Catalog {
 
 	public static void main(String[] args) throws InterruptedException {
 		Scanner in = null;
+		Scanner inBT = null;
 		Writer out = null;
 		boolean shouldQuit = false;
 		ArrayList<LibraryBook> library = new ArrayList<LibraryBook>();
@@ -35,7 +37,10 @@ public class Catalog {
 		}
 		try {
 			in = new Scanner(System.in);
-			out = new PrintWriter(new FileWriter("/dev/rfcomm0"));
+			//out = new PrintWriter(new FileWriter("/dev/rfcomm0"));
+			//inBT = new Scanner(new FileReader("dev/rfcomm0"));
+			out = new PrintWriter(new FileWriter("/dev/tty.RNBT-3A6B-RNI-SPP"));
+			inBT = new Scanner(new FileReader("/dev/tty.RNBT-3A6B-RNI-SPP"));
 			HttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 			final BooksRequestInitializer KEY_INITIALIZER =
@@ -47,12 +52,11 @@ public class Catalog {
 			while(!shouldQuit) {
 				System.out.println("What would you like to do?");
 				System.out.println("1. List available volumes.");
-				System.out.println("2. List all volumes.");
-				System.out.println("3. Add new volumes.");
-				System.out.println("4. Search volumes.");
-				System.out.println("5. Check out a book.");
-				System.out.println("6. Return a book.");
-				System.out.println("7. Exit.");
+				System.out.println("2. Add new volumes.");
+				System.out.println("3. Check out a book.");
+				System.out.println("4. Return a book.");
+				System.out.println("5. Exit.");
+				System.out.println("6. Eject from a specific slot (testing).");
 				System.out.print("\nEnter your selection: ");
 				String response = in.nextLine();
 				if(response.length() != 1 || Character.isLetter(response.charAt(0))) {
@@ -62,7 +66,7 @@ public class Catalog {
 					int selection = Character.getNumericValue(response.charAt(0));
 					switch(selection) {
 						case 1:
-							if(library.isEmpty()) {
+							if(library.isEmpty() || openShelves.size() == 15) {
 								System.out.println("Library is empty.\n");
 								continue;
 							} else {
@@ -75,19 +79,7 @@ public class Catalog {
 								}
 							}
 							break;
-						case 2: 
-							if(library.isEmpty()) {
-								System.out.println("Library is empty.");
-								continue;
-							} else {
-								Collections.sort(library);
-								int i = 1;
-								for(LibraryBook book : library) {
-									printBookInfo(i, book);
-								}
-							}
-							break;
-						case 3:
+						case 2:
 							System.out.println("Ready for scan.");
 							String isbnString = in.nextLine();
 							Volume v = backoffRequest(builder.volumes().list("isbn:"+isbnString));
@@ -112,18 +104,108 @@ public class Catalog {
 										((isbn != null)? " with ISBN " + isbn : ""));
 								openShelves.remove(openShelves.indexOf(shelf));
 								library.add(new LibraryBook(v,shelf));
-								out.write(Integer.toString(shelf)+"\n");
+								out.write("16\n");
+								System.out.println("Please place the book in slot "
+										+ Integer.toString(shelf)+" and press the green "
+												+ "button when finished.\n");
 								out.flush();
+								while(true) {
+									String stat = inBT.nextLine();
+									if(stat.equals("done")) break;
+								}; //wait for button
 							} else {
 								System.out.println("Lookup failed.");
 							}
 							break;
-						case 7:
+						case 3:
+							if(library.isEmpty() || openShelves.isEmpty()) {
+								System.out.println("Library is empty.");
+								break;
+							}
+							System.out.println("Type the name of the book you'd like to check out.\n");
+							String query = in.nextLine().toLowerCase();
+							Iterator<LibraryBook> bookIter = library.iterator();
+							LibraryBook currBook;
+							boolean wasFound = false;
+							while(bookIter.hasNext()) {
+								currBook = bookIter.next();
+								if(currBook.getTitle().toLowerCase().equals(query)) {
+									wasFound = true;
+									if(currBook.isAvailable()) {
+										System.out.println("Now retrieving "+ currBook.getTitle()+ ".");
+										currBook.setCheckedOut();
+										openShelves.add(currBook.getShelfNumber());
+										out.write(currBook.getShelfNumber()+"\n");
+										out.flush();
+										while(true) {
+											String stat = inBT.nextLine();
+											if(stat.equals("done")) break;
+										}; //wait for retrieval to complete
+									} else {
+										System.out.println("Sorry, that book is checked out.\n");
+									}
+									break;
+								}
+							}
+							if(!wasFound) {
+								System.out.println("Sorry, we don't currently have that book.\n");
+							}
+							break;
+						case 4:
+							System.out.println("Please scan the book you're returning.");
+							isbnString = in.nextLine();
+							v = backoffRequest(builder.volumes().list("isbn:"+isbnString));
+							if(v != null) {
+								query = v.getVolumeInfo().getTitle().toLowerCase();
+								bookIter = library.iterator();
+								currBook = null;
+								wasFound = false;
+								while(bookIter.hasNext()) {
+									currBook = bookIter.next();
+									if(currBook.getTitle().toLowerCase().equals(query)) {
+										wasFound = true;
+										if(!currBook.isAvailable()) {
+											int shelf = getMin(openShelves);
+											if(shelf == -1) {
+												System.out.println("Can't return volume, shelves are full.\n");
+												break;
+											}
+											out.write("16\n");
+											out.flush();
+											System.out.println("Please place the book in slot "
+													+ Integer.toString(shelf)+" and press the green "
+															+ "button when finished.\n");
+											currBook.setAvailable();
+											openShelves.remove(new Integer(shelf));
+											while(true) {
+												String stat = inBT.nextLine();
+												if(stat.equals("done")) break;
+											}; //wait for button
+										} else {
+											System.out.println("Sorry, that book is not checked out, so it can't be checked in.\n");
+										}
+										break;
+									}
+								}
+								if(!wasFound) {
+									System.out.println("Sorry, we don't currently have that book in our database.\n");
+								}
+								break;
+							} else {
+								System.out.println("Lookup failed.");
+							}
+							break;
+						case 5:
 							shouldQuit = true;
 							System.out.println("Exiting.");
 							break;
+						case 6:
+							System.out.println("Enter the slot number.");
+							String number = in.nextLine();
+							out.write(number+"\n");
+							out.flush();
+							break;
 						default:
-							System.out.println("Unimplemented.");
 							break;
 					}
 				}
