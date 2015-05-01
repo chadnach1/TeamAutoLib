@@ -37,10 +37,10 @@ public class Catalog {
 		}
 		try {
 			in = new Scanner(System.in);
-			//out = new PrintWriter(new FileWriter("/dev/rfcomm0"));
-			//inBT = new Scanner(new FileReader("dev/rfcomm0"));
-			out = new PrintWriter(new FileWriter("/dev/tty.RNBT-3A6B-RNI-SPP"));
-			inBT = new Scanner(new FileReader("/dev/tty.RNBT-3A6B-RNI-SPP"));
+			out = new PrintWriter(new FileWriter("/dev/rfcomm0"));
+			inBT = new Scanner(new FileReader("dev/rfcomm0"));
+			//out = new PrintWriter(new FileWriter("/dev/tty.RNBT-3A6B-RNI-SPP"));
+			//inBT = new Scanner(new FileReader("/dev/tty.RNBT-3A6B-RNI-SPP"));
 			HttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 			final BooksRequestInitializer KEY_INITIALIZER =
