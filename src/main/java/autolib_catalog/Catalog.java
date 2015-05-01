@@ -66,7 +66,7 @@ public class Catalog {
 					int selection = Character.getNumericValue(response.charAt(0));
 					switch(selection) {
 						case 1:
-							if(library.isEmpty() || openShelves.size() == 15) {
+							if(library.isEmpty()) {
 								System.out.println("Library is empty.\n");
 								continue;
 							} else {
@@ -75,6 +75,7 @@ public class Catalog {
 								for(LibraryBook book : library) {
 									if(book.isAvailable()) {
 										printBookInfo(i, book);
+										i++;
 									}
 								}
 							}
